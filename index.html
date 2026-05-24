@@ -2540,15 +2540,9 @@
     </footer>
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-
     <script>
-        // ===== CONFIG SUPABASE =====
-        const SUPABASE_URL = 'https://ccpoiqittmeafvojwqct.supabase.co';
-        const SUPABASE_ANON_KEY = 'sb_publishable_fsfNJBfXrsMuHjaB8Eeisg_PvBHgElk'; // Cole sua anon key do Supabase
-        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-        const API = '/api'; // Vercel reescreve para /api/*
-
-        // ===== VARIÁVEIS GLOBAIS =====
+        // ===== CONFIG =====
+        const API_BASE = '/api';
         let map, profileMap, registerMap, markers = [], userLocation = null, estabSelecionado = null;
         let servicoSel = null, dataSel = null, horaSel = null, fotosServicos = [], usuarioAtual = null;
         let fotosRegistro = [], horariosSelecionados = [], registerMarker = null;
@@ -2561,74 +2555,17 @@
             await verificarUsuario();
             await carregarEstabelecimentos();
             renderFeed();
-            initGoogleSignIn(); // ← Novo: inicia Google Sign-In
+            initGoogleSignIn();
+
             window.addEventListener('scroll', () => {
                 document.querySelector('header')?.classList.toggle('scrolled', window.scrollY > 10);
                 document.querySelector('.back-to-top')?.classList.toggle('visible', window.scrollY > 300);
             }, { passive: true });
         });
 
-        // ===== GOOGLE SIGN-IN =====
-        function initGoogleSignIn() {
-            if (typeof google === 'undefined') return;
-
-            google.accounts.id.initialize({
-                client_id: '905504331269-500bpogotltfksa6t6tkc7v2o5qfjnm7.apps.googleusercontent.com',
-                callback: handleGoogleLogin,
-                nonce: 'zanza-nonce-' + Date.now() // ← nonce dinâmico
-            });
-
-            // renderizar no container existente
-            const container = document.getElementById('google-btn-container');
-            if (container) {
-                container.innerHTML = ''; // limpa antes de renderizar
-                google.accounts.id.renderButton(container, {
-                    theme: 'outline',
-                    size: 'large',
-                    width: '100%',
-                    text: 'continue_with',
-                    shape: 'rectangular'
-                });
-            }
-        }
-
-        async function handleGoogleLogin(response) {
-            try {
-                // Login via Supabase com token do Google
-                const { data, error } = await supabase.auth.signInWithIdToken({
-                    provider: 'google',
-                    token: response.credential,
-                    nonce: 'zanza-nonce'
-                });
-                if (error) throw error;
-
-                usuarioAtual = {
-                    id: data.user.id,
-                    nome: data.user.user_metadata.name,
-                    email: data.user.email,
-                    avatar: data.user.user_metadata.avatar_url
-                };
-                localStorage.setItem('usuarioZanza', JSON.stringify(usuarioAtual));
-                fecharAuth();
-                atualizarHeaderUsuario();
-                mostrarAlerta('alertAuth', `Bem-vindo, ${usuarioAtual.nome}! ✨`, 'success');
-            } catch (err) {
-                console.error('Erro Google:', err);
-                mostrarAlerta('alertAuth', 'Erro ao login com Google: ' + err.message, 'error');
-            }
-        }
-
-        // ===== APPLE SIGN-IN =====
-        async function loginApple() {
-            // Nota: Apple Sign-In requer configuração de domínio verificado
-            // Para MVP: use email/senha ou apenas Google
-            mostrarAlerta('alertAuth', 'Apple Sign-In: configure em Production no painel da Apple', 'info');
-            // Em produção: use @apple/signin e envie id_token para /api/auth
-        }
-
         // ===== MAPAS =====
         async function initMap() {
-            if (typeof L === 'undefined') { console.error('Leaflet não carregou'); return; }
+            if (typeof L === 'undefined') return;
             map = L.map('map', { zoomControl: false }).setView([-23.5505, -46.6333], 13);
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OpenStreetMap', maxZoom: 19 }).addTo(map);
             L.control.zoom({ position: 'bottomright' }).addTo(map);
@@ -2636,7 +2573,7 @@
         }
 
         function initRegisterMap() {
-            if (registerMap) registerMap.remove();
+            if (registerMap) return;
             registerMap = L.map('registerMap').setView([-23.5505, -46.6333], 13);
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OpenStreetMap', maxZoom: 19 }).addTo(registerMap);
             registerMarker = L.marker([-23.5505, -46.6333], { draggable: true }).addTo(registerMap);
@@ -2648,7 +2585,7 @@
         }
 
         function initProfileMap() {
-            if (profileMap) profileMap.remove();
+            if (profileMap) return;
             profileMap = L.map('profileMap').setView([-23.5505, -46.6333], 13);
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OpenStreetMap', maxZoom: 19 }).addTo(profileMap);
             const marker = L.marker([-23.5505, -46.6333], { draggable: true }).addTo(profileMap);
@@ -2662,8 +2599,7 @@
         // ===== CARREGAR ESTABELECIMENTOS DA API =====
         async function carregarEstabelecimentos() {
             try {
-                // Busca da API do Vercel
-                const response = await fetch(`${API}/establishments`);
+                const response = await fetch(`${API_BASE}/establishments`);
                 const result = await response.json();
                 if (result.success && result.data?.length) {
                     renderizarLista(result.data);
@@ -2671,7 +2607,6 @@
                 }
             } catch (err) {
                 console.error('Erro ao carregar:', err);
-                // Fallback: usa dados locais se API falhar
                 renderizarLista(carregarEstabelecimentosLocal());
             }
         }
@@ -2701,16 +2636,17 @@
                 const nome = e.name || e.nome;
                 const endereco = e.address || e.endereco;
                 const telefone = e.phone || e.telefone;
-                const servicos = e.services || e.servicos || [];
-                const lat = e.latitude || e.lat;
-                const lng = e.longitude || e.lng;
+                const servicos = typeof e.services === 'string' ? JSON.parse(e.services) : (e.services || e.servicos || []);
                 const distancia = e.distance || '?';
 
                 card.innerHTML = `${i === 0 ? '<span style="position:absolute;top:-8px;right:10px;background:#FF6B6B;color:white;padding:2px 10px;border-radius:20px;font-size:0.75rem;font-weight:600">★ Mais próximo</span>' : ''}
       <div style="display:flex;justify-content:space-between;align-items:start"><h3>${nome}</h3><span class="distance-badge">${distancia} km</span></div>
       <p>📍 ${endereco}</p><p>📞 ${formatarTelefone(telefone)}</p>
       <div class="services-tags">${servicos.map(s => `<span class="service-tag">${s.nome}</span>`).join('')}</div>
-      <div class="card-actions"><button class="btn btn-primary btn-sm" onclick="event.stopPropagation();abrirAgenda('${e.id}')">📅 Agendar</button><button class="btn btn-outline btn-sm" onclick="event.stopPropagation();abrirWhatsApp('${telefone}')">💬 WhatsApp</button></div>`;
+      <div class="card-actions">
+        <button class="btn btn-primary btn-sm" onclick="event.stopPropagation();abrirAgenda('${e.id}')">📅 Agendar</button>
+        <button class="btn btn-outline btn-sm" onclick="event.stopPropagation();abrirWhatsApp('${telefone}')">💬 WhatsApp</button>
+      </div>`;
                 card.onclick = ev => { if (!ev.target.closest('button')) focarNoMapa(e); };
                 c.appendChild(card);
             });
@@ -2724,7 +2660,7 @@
                 const params = new URLSearchParams({ lat, lng });
                 if (filtroServico) params.append('service', filtroServico);
 
-                const response = await fetch(`${API}/establishments?${params}`);
+                const response = await fetch(`${API_BASE}/establishments?${params}`);
                 const result = await response.json();
                 if (!result.success) return;
 
@@ -2864,17 +2800,17 @@
             }, () => { alert('Não foi possível obter sua localização'); document.getElementById('loadingBusca').classList.add('hidden'); });
         }
 
-        // ===== AGENDAMENTO (adaptado para IDs string) =====
+        // ===== AGENDAMENTO =====
         async function abrirAgenda(id) {
             try {
-                const response = await fetch(`${API}/establishments?id=${id}`);
+                const response = await fetch(`${API_BASE}/establishments?id=${id}`);
                 const result = await response.json();
                 if (!result.success) return;
 
                 estabSelecionado = result.data;
                 const nome = estabSelecionado.name || estabSelecionado.nome;
                 const endereco = estabSelecionado.address || estabSelecionado.endereco;
-                const servicos = estabSelecionado.services || estabSelecionado.servicos || [];
+                const servicos = typeof estabSelecionado.services === 'string' ? JSON.parse(estabSelecionado.services) : (estabSelecionado.services || estabSelecionado.servicos || []);
 
                 document.getElementById('enderecoModal').textContent = endereco;
                 document.getElementById('listaServicos').innerHTML = servicos.map((s, i) =>
@@ -2904,7 +2840,7 @@
         }
 
         function selecionarServico(i) {
-            const servicos = estabSelecionado.services || estabSelecionado.servicos || [];
+            const servicos = typeof estabSelecionado.services === 'string' ? JSON.parse(estabSelecionado.services) : (estabSelecionado.services || estabSelecionado.servicos || []);
             servicoSel = servicos[i];
             document.querySelectorAll('.service-option').forEach((el, idx) => el.classList.toggle('selected', idx === i));
             gerarHorarios();
@@ -2915,7 +2851,7 @@
 
         function gerarHorarios() {
             const c = document.getElementById('horariosGrid'), indisponiveis = ['11:00', '15:00'];
-            const horarios = estabSelecionado.schedules || estabSelecionado.horarios || [];
+            const horarios = typeof estabSelecionado.schedules === 'string' ? JSON.parse(estabSelecionado.schedules) : (estabSelecionado.schedules || estabSelecionado.horarios || []);
             c.innerHTML = horarios.map(h => `<div class="time-slot ${indisponiveis.includes(h) ? 'unavailable' : ''} ${h === horaSel ? 'selected' : ''}" ${!indisponiveis.includes(h) ? `onclick="selecionarHorario('${h}')"` : ''}>${h}${indisponiveis.includes(h) ? '<div style="font-size:0.75rem;color:#999">Ocupado</div>' : ''}</div>`).join('');
         }
 
@@ -2943,7 +2879,7 @@
             window.open(isMobile ? `https://wa.me/${telefone}?text=${msg}` : `https://web.whatsapp.com/send?phone=${telefone}&text=${msg}`, '_blank');
         }
 
-        // ===== CADASTRO DE ESTABELECIMENTO (SAVE AUTOMÁTICO NO BACKEND) =====
+        // ===== CADASTRO DE ESTABELECIMENTO =====
         function previewFotosRegistro(e) {
             const files = Array.from(e.target.files);
             files.forEach(file => {
@@ -2953,6 +2889,7 @@
                 reader.readAsDataURL(file);
             });
         }
+
         function renderizarFotosRegistro() {
             const c = document.getElementById('regPhotosPreview'); c.innerHTML = '';
             fotosRegistro.forEach((src, i) => {
@@ -2961,17 +2898,21 @@
                 c.appendChild(div);
             });
         }
+
         function removerFotoRegistro(i) { fotosRegistro.splice(i, 1); renderizarFotosRegistro(); }
+
         function adicionarServico() {
             const builder = document.getElementById('servicesBuilder');
             const row = document.createElement('div'); row.className = 'service-row';
             row.innerHTML = `<input type="text" placeholder="Nome do serviço" class="svc-nome" required><input type="number" placeholder="Min" class="svc-duracao" min="15" max="480" required><input type="number" placeholder="R$" class="svc-preco" min="1" step="0.01" required><button type="button" class="btn-remove-service" onclick="removerServico(this)" title="Remover">×</button>`;
             builder.appendChild(row); row.querySelector('.svc-nome').focus();
         }
+
         function removerServico(btn) {
             const row = btn.closest('.service-row');
             if (document.querySelectorAll('.service-row').length > 1) { row.style.opacity = '0'; row.style.transform = 'translateX(-20px)'; setTimeout(() => row.remove(), 150); }
         }
+
         function toggleHorario(el) {
             if (el.classList.contains('removed')) return;
             el.classList.toggle('selected');
@@ -2979,6 +2920,7 @@
             if (el.classList.contains('selected')) { if (!horariosSelecionados.includes(horario)) horariosSelecionados.push(horario); }
             else { horariosSelecionados = horariosSelecionados.filter(h => h !== horario); }
         }
+
         function usarLocalizacaoRegistro() {
             if (!navigator.geolocation) { alert('Geolocalização não suportada'); return; }
             navigator.geolocation.getCurrentPosition(async pos => {
@@ -3003,7 +2945,9 @@
 
             const servicos = [];
             document.querySelectorAll('.service-row').forEach(row => {
-                const nome = row.querySelector('.svc-nome')?.value.trim(), duracao = parseInt(row.querySelector('.svc-duracao')?.value), preco = parseFloat(row.querySelector('.svc-preco')?.value);
+                const nome = row.querySelector('.svc-nome')?.value.trim(),
+                    duracao = parseInt(row.querySelector('.svc-duracao')?.value),
+                    preco = parseFloat(row.querySelector('.svc-preco')?.value);
                 if (nome && duracao && preco) servicos.push({ nome, duracao, preco });
             });
 
@@ -3013,7 +2957,6 @@
                 return;
             }
 
-            // Dados para enviar ao backend
             const dados = {
                 name: document.getElementById('regNome').value.trim(),
                 address: document.getElementById('regEndereco').value.trim(),
@@ -3025,12 +2968,11 @@
                 services: JSON.stringify(servicos),
                 schedules: JSON.stringify(horariosSelecionados.sort()),
                 photos: fotosRegistro,
-                user_id: usuarioAtual?.id // Vincula ao usuário logado (se houver)
+                user_id: usuarioAtual?.id
             };
 
             try {
-                // ← SAVE AUTOMÁTICO NO BACKEND VIA API
-                const response = await fetch(`${API}/establishments`, {
+                const response = await fetch(`${API_BASE}/establishments`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(dados)
@@ -3043,15 +2985,27 @@
                 document.getElementById('registerForm').classList.add('hidden');
                 document.getElementById('registerSuccess').classList.remove('hidden');
 
-                // Recarrega lista do backend
                 await carregarEstabelecimentos();
                 setTimeout(() => { atualizarMapa(dados.latitude, dados.longitude, ''); }, 500);
             } catch (err) {
                 console.error('Erro ao cadastrar:', err);
                 mostrarAlerta('alertRegister', err.message || 'Erro ao cadastrar estabelecimento', 'error');
                 btn.classList.remove('btn-loading'); btn.disabled = false;
-                // Fallback: salva no localStorage se API falhar
-                const fallback = { id: Date.now(), nome: dados.name, endereco: dados.address, lat: dados.latitude, lng: dados.longitude, telefone: dados.phone, email: dados.email, descricao: dados.description, servicos: servicos, horarios: horariosSelecionados.sort(), fotos: fotosRegistro };
+
+                // Fallback: salva no localStorage
+                const fallback = {
+                    id: Date.now(),
+                    nome: dados.name,
+                    endereco: dados.address,
+                    lat: dados.latitude,
+                    lng: dados.longitude,
+                    telefone: dados.phone,
+                    email: dados.email,
+                    descricao: dados.description,
+                    servicos: servicos,
+                    horarios: horariosSelecionados.sort(),
+                    fotos: fotosRegistro
+                };
                 const salvos = JSON.parse(localStorage.getItem('estabelecimentosZanza') || '[]');
                 salvos.push(fallback);
                 localStorage.setItem('estabelecimentosZanza', JSON.stringify(salvos));
@@ -3065,15 +3019,60 @@
             document.getElementById('geocodeStatus').textContent = ''; document.getElementById('geocodeStatus').className = 'geocode-status';
             if (registerMap) { registerMap.setView([-23.5505, -46.6333], 13); if (registerMarker) registerMarker.setLatLng([-23.5505, -46.6333]); }
         }
+
         function novoRegistro() { limparRegistro(); document.getElementById('registerSuccess').classList.add('hidden'); document.getElementById('registerForm').classList.remove('hidden'); }
         function voltarParaLista() { document.getElementById('registerSuccess').classList.add('hidden'); document.getElementById('registerForm').classList.remove('hidden'); scrollToAgendamento(); }
         function scrollToAgendamento() { document.getElementById('map-section').scrollIntoView({ behavior: 'smooth' }); }
 
-        // ===== AUTENTICAÇÃO (adaptada para Supabase) =====
+        // ===== AUTENTICAÇÃO =====
+        function initGoogleSignIn() {
+            if (typeof google === 'undefined') return;
+            google.accounts.id.initialize({
+                client_id: 'SEU_GOOGLE_CLIENT_ID.apps.googleusercontent.com',
+                callback: handleGoogleLogin,
+                nonce: 'zanza-nonce-' + Date.now()
+            });
+            const container = document.getElementById('google-btn-container');
+            if (container) {
+                container.innerHTML = '';
+                google.accounts.id.renderButton(container, {
+                    theme: 'outline', size: 'large', width: '100%',
+                    text: 'continue_with', shape: 'rectangular'
+                });
+            }
+        }
+
+        async function handleGoogleLogin(response) {
+            try {
+                const res = await fetch(`${API_BASE}/auth`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ provider: 'google', token: response.credential })
+                });
+                const result = await res.json();
+                if (!result.success) throw new Error(result.error);
+
+                usuarioAtual = result.user;
+                localStorage.setItem('usuarioZanza', JSON.stringify(usuarioAtual));
+                fecharAuth();
+                atualizarHeaderUsuario();
+                mostrarAlerta('alertAuth', `Bem-vindo, ${usuarioAtual.name}! ✨`, 'success');
+            } catch (err) {
+                console.error('Erro Google:', err);
+                mostrarAlerta('alertAuth', 'Erro ao login com Google: ' + err.message, 'error');
+            }
+        }
+
+        async function loginApple() {
+            mostrarAlerta('alertAuth', 'Apple Sign-In: configure em Production no painel da Apple', 'info');
+        }
+
         function abrirAuth(tipo) { document.getElementById('modalAuth').classList.add('open'); document.getElementById('alertAuth').classList.remove('show'); mudarTabAuth(tipo === 'profissional' ? 'registro' : 'login'); }
         function fecharAuth() { document.getElementById('modalAuth').classList.remove('open'); }
+
         function mudarTabAuth(tab) {
-            const tabLogin = document.getElementById('tabLogin'), tabRegistro = document.getElementById('tabRegistro'), formLogin = document.getElementById('formLogin'), formRegistro = document.getElementById('formRegistro');
+            const tabLogin = document.getElementById('tabLogin'), tabRegistro = document.getElementById('tabRegistro'),
+                formLogin = document.getElementById('formLogin'), formRegistro = document.getElementById('formRegistro');
             if (tab === 'login') { tabLogin.classList.add('active'); tabRegistro.classList.remove('active'); formLogin.classList.remove('hidden'); formRegistro.classList.add('hidden'); }
             else { tabRegistro.classList.add('active'); tabLogin.classList.remove('active'); formRegistro.classList.remove('hidden'); formLogin.classList.add('hidden'); }
             document.getElementById('alertAuth').classList.remove('show');
@@ -3081,15 +3080,20 @@
 
         async function fazerLogin(e) {
             e.preventDefault();
-            const email = document.getElementById('loginEmail').value, senha = document.getElementById('loginSenha').value, btn = e.target.querySelector('button[type="submit"]');
+            const email = document.getElementById('loginEmail').value, senha = document.getElementById('loginSenha').value,
+                btn = e.target.querySelector('button[type="submit"]');
             btn.disabled = true; btn.textContent = 'Entrando...';
 
             try {
-                // Login via Supabase Auth (email/senha)
-                const { data, error } = await supabase.auth.signInWithPassword({ email, password: senha });
-                if (error) throw error;
+                const res = await fetch(`${API_BASE}/auth`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password: senha })
+                });
+                const result = await res.json();
+                if (!result.success) throw new Error(result.error);
 
-                usuarioAtual = { id: data.user.id, nome: data.user.user_metadata?.name || email, email: data.user.email };
+                usuarioAtual = result.user;
                 localStorage.setItem('usuarioZanza', JSON.stringify(usuarioAtual));
                 mostrarAlerta('alertAuth', 'Login realizado com sucesso! Bem-vindo(a)! ✨', 'success');
                 fecharAuth(); atualizarHeaderUsuario();
@@ -3110,8 +3114,8 @@
             btn.disabled = true; btn.textContent = 'Criando conta...';
 
             try {
-                // Registro via Supabase Auth
-                const { data, error } = await supabase.auth.signUp({
+                const { supabase } = await import('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2');
+                const { data, error } = await supabase.createClient('https://SEU_PROJECT_ID.supabase.co', 'eyJhbGc...').auth.signUp({
                     email: dados.email,
                     password: dados.password,
                     options: { data: { name: dados.nome, phone: dados.telefone } }
@@ -3128,8 +3132,6 @@
             btn.disabled = false; btn.textContent = 'Criar conta';
         }
 
-        // Google/Apple já definidos acima (handleGoogleLogin, loginApple)
-
         function recuperarSenha() { fecharAuth(); document.getElementById('modalRecuperacao').classList.add('open'); }
         function fecharRecuperacao() { document.getElementById('modalRecuperacao').classList.remove('open'); }
 
@@ -3139,7 +3141,8 @@
             btn.disabled = true; btn.textContent = 'Enviando...';
 
             try {
-                await supabase.auth.resetPasswordForEmail(email, { redirectTo: window.location.href });
+                const { supabase } = await import('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2');
+                await supabase.createClient('https://SEU_PROJECT_ID.supabase.co', 'eyJhbGc...').auth.resetPasswordForEmail(email, { redirectTo: window.location.href });
                 mostrarAlerta('alertRecuperacao', `Email de recuperação enviado para ${email}! 📧`, 'success');
             } catch (err) {
                 mostrarAlerta('alertRecuperacao', err.message, 'error');
@@ -3155,13 +3158,11 @@
         }
 
         async function atualizarHeaderUsuario() {
-            // Tenta pegar do localStorage primeiro (para evitar chamada extra)
             const usuario = JSON.parse(localStorage.getItem('usuarioZanza') || 'null');
             const navActions = document.querySelector('.nav-actions');
-
             if (usuario?.email) {
-                const inicial = usuario.nome?.charAt(0).toUpperCase() || usuario.email?.charAt(0).toUpperCase() || 'U';
-                navActions.innerHTML = `<button class="btn btn-avatar" onclick="abrirPerfil()" title="${usuario.nome || 'Perfil'}">${inicial}</button><button class="btn btn-outline btn-sm" onclick="logout()">Sair</button>`;
+                const inicial = usuario.name?.charAt(0).toUpperCase() || usuario.email?.charAt(0).toUpperCase() || 'U';
+                navActions.innerHTML = `<button class="btn btn-avatar" onclick="abrirPerfil()" title="${usuario.name || 'Perfil'}">${inicial}</button><button class="btn btn-outline btn-sm" onclick="logout()">Sair</button>`;
             } else {
                 navActions.innerHTML = `<button class="btn btn-outline btn-sm" onclick="abrirAuth()">Entrar</button><button class="btn btn-primary btn-sm" onclick="scrollToAgendamento()">Agendar</button>`;
             }
@@ -3169,7 +3170,7 @@
 
         async function logout() {
             if (confirm('Deseja realmente sair da conta?')) {
-                await supabase.auth.signOut(); // Logout no Supabase
+                await fetch(`${API_BASE}/auth`, { method: 'DELETE' });
                 localStorage.removeItem('usuarioZanza');
                 usuarioAtual = null;
                 atualizarHeaderUsuario();
@@ -3178,32 +3179,27 @@
         }
 
         async function verificarUsuario() {
-            // Verifica sessão ativa no Supabase
-            const { data: { session } } = await supabase.auth.getSession();
-            if (session?.user) {
-                usuarioAtual = {
-                    id: session.user.id,
-                    nome: session.user.user_metadata?.name || session.user.email,
-                    email: session.user.email,
-                    avatar: session.user.user_metadata?.avatar_url
-                };
-                localStorage.setItem('usuarioZanza', JSON.stringify(usuarioAtual));
+            try {
+                const res = await fetch(`${API_BASE}/auth`);
+                const result = await res.json();
+                if (result.success && result.user) {
+                    usuarioAtual = result.user;
+                    localStorage.setItem('usuarioZanza', JSON.stringify(usuarioAtual));
+                }
+            } catch (e) {
+                console.warn('Auth offline');
             }
             atualizarHeaderUsuario();
         }
 
         // ===== PERFIL =====
         async function abrirPerfil() {
-            if (!usuarioAtual && !JSON.parse(localStorage.getItem('usuarioZanza') || 'null')?.email) {
-                abrirAuth(); return;
-            }
+            if (!usuarioAtual && !JSON.parse(localStorage.getItem('usuarioZanza') || 'null')?.email) { abrirAuth(); return; }
             initProfileMap();
             document.getElementById('modalPerfil').classList.add('open');
-
-            // Carrega dados do usuário logado
             const usuario = JSON.parse(localStorage.getItem('usuarioZanza') || 'null');
             if (usuario) {
-                document.getElementById('profileNameDisplay').textContent = usuario.nome || usuario.email;
+                document.getElementById('profileNameDisplay').textContent = usuario.name || usuario.email;
                 document.getElementById('profileEmailDisplay').textContent = usuario.email;
                 ['profileNome', 'profileEmail', 'profileTelefone'].forEach(id => {
                     const el = document.getElementById(id);
@@ -3212,6 +3208,7 @@
                 });
             }
         }
+
         function fecharPerfil() { document.getElementById('modalPerfil').classList.remove('open'); }
 
         function previewFotoPerfil(e) {
@@ -3219,12 +3216,14 @@
             if (!file.type.startsWith('image/') || file.size > 5 * 1024 * 1024) { mostrarAlerta('alertPerfil', 'Selecione uma imagem válida (máx. 5MB)', 'error'); return; }
             const reader = new FileReader(); reader.onload = ev => { document.getElementById('profileAvatar').src = ev.target.result; }; reader.readAsDataURL(file);
         }
+
         function previewFotosServicos(e) {
             const files = Array.from(e.target.files); files.forEach(file => {
                 if (!file.type.startsWith('image/') || file.size > 5 * 1024 * 1024) return;
                 const reader = new FileReader(); reader.onload = ev => { fotosServicos.push(ev.target.result); renderizarFotosPreview(); }; reader.readAsDataURL(file);
             });
         }
+
         function renderizarFotosPreview() {
             const c = document.getElementById('photosPreview'); c.innerHTML = '';
             fotosServicos.forEach((src, i) => {
@@ -3232,7 +3231,9 @@
                 div.innerHTML = `<img src="${src}" alt="Foto ${i + 1}"><button class="photo-remove" onclick="removerFoto(${i})">&times;</button>`; c.appendChild(div);
             });
         }
+
         function removerFoto(i) { fotosServicos.splice(i, 1); renderizarFotosPreview(); }
+
         function definirLocalizacaoAtual() {
             if (!navigator.geolocation) { alert('Geolocalização não suportada'); return; }
             navigator.geolocation.getCurrentPosition(pos => {
@@ -3261,17 +3262,15 @@
             };
 
             try {
-                // Update via Supabase (requer RLS configurado)
-                const { error } = await supabase.from('users').update(dados).eq('id', usuarioAtual.id);
+                // Update via Supabase (requer tabela profiles configurada)
+                const { supabase } = await import('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2');
+                const { error } = await supabase.createClient('https://SEU_PROJECT_ID.supabase.co', 'eyJhbGc...').from('profiles').update(dados).eq('id', usuarioAtual.id);
                 if (error) throw error;
 
-                // Atualiza localStorage
                 usuarioAtual = { ...usuarioAtual, ...dados };
                 localStorage.setItem('usuarioZanza', JSON.stringify(usuarioAtual));
-
                 mostrarAlerta('alertPerfil', 'Perfil atualizado com sucesso! ✨', 'success');
             } catch (err) {
-                // Fallback: só atualiza localStorage
                 localStorage.setItem('usuarioZanza', JSON.stringify({ ...usuarioAtual, ...dados }));
                 mostrarAlerta('alertPerfil', 'Perfil salvo localmente (backend offline)', 'info');
             }
@@ -3285,7 +3284,9 @@
             telInputs.forEach(input => { input?.addEventListener('input', e => { let v = e.target.value.replace(/\D/g, '').slice(0, 11); if (v.length > 10) v = v.replace(/^(\d{2})(\d{5})(\d{4})/, '($1) $2-$3'); else if (v.length > 5) v = v.replace(/^(\d{2})(\d{4})(\d{0,4})/, '($1) $2-$3'); else if (v.length > 2) v = v.replace(/^(\d{2})(\d{0,5})/, '($1) $2'); e.target.value = v; }); });
             const cnpj = document.getElementById('profileCNPJ'); cnpj?.addEventListener('input', e => { let v = e.target.value.replace(/\D/g, '').slice(0, 14); if (v.length > 2) v = v.replace(/^(\d{2})/, '$1.'); if (v.length > 5) v = v.replace(/^(\d{2})\.(\d{3})/, '$1.$2'); if (v.length > 8) v = v.replace(/^(\d{2})\.(\d{3})\.(\d{3})/, '$1.$2.$3'); if (v.length > 12) v = v.replace(/^(\d{2})\.(\d{3})\.(\d{3})\/(\d{4})/, '$1.$2.$3/$4'); e.target.value = v; });
         }
+
         function renderFeed() { const imagens = ['https://images.unsplash.com/photo-1512290923902-8a9f81dc236c?w=400&q=80', 'https://images.unsplash.com/photo-1560750588-73207b1ef5b8?w=400&q=80', 'https://images.unsplash.com/photo-1616394584738-fc6e612e71b9?w=400&q=80'], nomes = ['Clínica Bella', 'Dra. Ana', 'Studio Glow'], servicos = ['Limpeza de pele profunda ✨', 'Design de sobrancelhas fio a fio', 'Manicure completa e spa dos pés'], g = document.getElementById('feedGrid'); imagens.forEach((src, i) => { g.innerHTML += `<div class="feed-card"><img src="${src}" alt="${servicos[i]}" loading="lazy"><div class="feed-content"><div class="feed-user"><span>${nomes[i]}</span> <span class="verified">✓</span></div><p>${servicos[i]}</p></div></div>`; }); }
+
         function assinarNewsletter(e) { e.preventDefault(); mostrarAlerta('alertAuth', 'Obrigado por assinar nossa newsletter! ✨', 'success'); e.target.reset(); }
 
         // ===== EVENTOS GLOBAIS =====
