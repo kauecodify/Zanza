@@ -2943,7 +2943,7 @@
             }
         }
         async function handleGoogleLogin(response) {
-            // Salva localmente se API falhar
+            // Implementação simplificada: Salva localmente se API falhar
             usuarioAtual = { name: "Usuário Google", email: "google@user.com" };
             localStorage.setItem('usuarioZanza', JSON.stringify(usuarioAtual));
             fecharAuth(); atualizarHeaderUsuario();
