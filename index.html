@@ -2287,15 +2287,28 @@
                 <div></div><span>ou continue com</span>
                 <div></div>
             </div>
-            <div id="google-btn-container"></div>
-            <!-- Apple;Google-->
-            <button onclick="loginApple()" class="btn social-btn apple" style="margin-top:0.5rem">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                    <path
-                        d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z" />
-                </svg>
-                Continuar com Apple
-            </button>
+            <div>
+                <button onclick="loginGoogle()" class="btn social-btn google">
+                    <svg width="20" height="20" viewBox="0 0 24 24">
+                        <path fill="#4285F4"
+                            d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
+                        <path fill="#34A853"
+                            d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
+                        <path fill="#FBBC05"
+                            d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" />
+                        <path fill="#EA4335"
+                            d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
+                    </svg>
+                    Continuar com Google
+                </button>
+                <button onclick="loginApple()" class="btn social-btn apple">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                        <path
+                            d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z" />
+                    </svg>
+                    Continuar com Apple
+                </button>
+            </div>
             <p style="text-align:center;margin-top:1rem;font-size:0.85rem;color:var(--text-muted)">Ao continuar, você
                 concorda com nossos Termos de Uso.</p>
         </div>
@@ -2540,371 +2553,253 @@
     </footer>
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-<script>
-    // ===== CONFIGURAÇÃO SEGURA =====
-    const API_BASE = '/api'; 
-    let map, profileMap, registerMap, markers = [], userLocation = null, estabSelecionado = null;
-    let servicoSel = null, dataSel = null, horaSel = null, fotosServicos = [], usuarioAtual = null;
-    let fotosRegistro = [], horariosSelecionados = [], registerMarker = null;
+    <script>
+        // ===== DADOS INICIAIS =====
+        const estabelecimentosPadrao = [
+            { id: 1, nome: "Clínica Bella Estética", endereco: "Rua das Flores, 123 - Centro, São Paulo, SP", lat: -23.5505, lng: -46.6333, telefone: "5511999999999", email: "contato@clinica.com", descricao: "Especialistas em cuidados faciais", servicos: [{ nome: "Limpeza de Pele", duracao: 60, preco: 150 }, { nome: "Design de Sobrancelha", duracao: 30, preco: 80 }, { nome: "Massagem Relaxante", duracao: 60, preco: 200 }], horarios: ["09:00", "10:00", "11:00", "14:00", "15:00", "16:00", "17:00"], fotos: [] },
+            { id: 2, nome: "Studio Glow", endereco: "Av. Paulista, 1000 - Bela Vista, São Paulo, SP", lat: -23.5613, lng: -46.6565, telefone: "5511988888888", email: "ola@studioglow.com", descricao: "Manicure e cuidados com as unhas", servicos: [{ nome: "Manicure Completa", duracao: 45, preco: 60 }, { nome: "Pedicure", duracao: 45, preco: 60 }, { nome: "Spa dos Pés", duracao: 60, preco: 100 }], horarios: ["10:00", "11:00", "13:00", "14:00", "15:00", "16:00", "17:00", "18:00"], fotos: [] },
+            { id: 3, nome: "Dra. Ana Estética", endereco: "Rua Oscar Freire, 500 - Jardins, São Paulo, SP", lat: -23.5615, lng: -46.6720, telefone: "5511977777777", email: "contato@draana.com", descricao: "Procedimentos estéticos avançados", servicos: [{ nome: "Botox", duracao: 30, preco: 800 }, { nome: "Preenchimento", duracao: 45, preco: 1200 }, { nome: "Limpeza de Pele", duracao: 60, preco: 250 }], horarios: ["09:00", "10:30", "14:00", "15:30", "17:00"], fotos: [] },
+            { id: 4, nome: "Espaço Bem Estar", endereco: "Rua Augusta, 800 - Consolação, São Paulo, SP", lat: -23.5558, lng: -46.6500, telefone: "5511966666666", email: "contato@bemestar.com", descricao: "Massagens e terapias corporais", servicos: [{ nome: "Massagem Modeladora", duracao: 60, preco: 180 }, { nome: "Drenagem Linfática", duracao: 50, preco: 150 }], horarios: ["09:00", "10:00", "11:00", "14:00", "15:00", "16:00"], fotos: [] }
+        ];
 
-    // Dados Mockados para garantir que algo apareça sempre
-    const ESTABELECIMENTOS_MOCK = [
-        { id: 1, nome: "Clínica Bella", endereco: "Rua das Flores, 123 - SP", lat: -23.5505, lng: -46.6333, telefone: "5511999999999", servicos: [{ nome: "Limpeza", duracao: 60, preco: 150 }] },
-        { id: 2, nome: "Studio Glow", endereco: "Av. Paulista, 1000 - SP", lat: -23.5613, lng: -46.6565, telefone: "5511988888888", servicos: [{ nome: "Manicure", duracao: 45, preco: 60 }] }
-    ];
+        // ===== VARIÁVEIS GLOBAIS =====
+        let map, profileMap, registerMap, markers = [], userLocation = null, estabSelecionado = null;
+        let servicoSel = null, dataSel = null, horaSel = null, fotosServicos = [], usuarioAtual = null;
+        let fotosRegistro = [], horariosSelecionados = [], registerMarker = null;
+        let proximoId = 5;
 
-    // ===== INICIALIZAÇÃO BLINDADA =====
-    window.addEventListener('load', () => {
-        console.log("App Iniciando...");
-        try {
-            initMap();
-            initRegisterMap();
-            setupMascaras();
-            verificarUsuario(); // Sync
-            carregarEstabelecimentos(); // Async mas não bloqueante
-            renderFeed();
-            initGoogleSignIn();
-            
+        // ===== INICIALIZAÇÃO =====
+        window.addEventListener('load', () => {
+            initMap(); initRegisterMap(); setupMascaras(); carregarPerfilMock(); verificarUsuario(); renderFeed();
             window.addEventListener('scroll', () => {
                 document.querySelector('header')?.classList.toggle('scrolled', window.scrollY > 10);
                 document.querySelector('.back-to-top')?.classList.toggle('visible', window.scrollY > 300);
             }, { passive: true });
-        } catch (e) {
-            console.error("Erro crítico na inicialização:", e);
+        });
+
+        // ===== MAPAS =====
+        function initMap() {
+            if (typeof L === 'undefined') { console.error('Leaflet não carregou'); return; }
+            map = L.map('map', { zoomControl: false }).setView([-23.5505, -46.6333], 13);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OpenStreetMap', maxZoom: 19 }).addTo(map);
+            L.control.zoom({ position: 'bottomright' }).addTo(map); map.invalidateSize();
         }
-    });
-
-    // ===== MAPAS =====
-    function initMap() {
-        if (typeof L === 'undefined') { console.error('Leaflet não carregou'); return; }
-        const mapEl = document.getElementById('map');
-        if (!mapEl) return;
-
-        // Previne inicialização duplicada
-        if (map) { map.remove(); }
-
-        map = L.map('map', { zoomControl: false }).setView([-23.5505, -46.6333], 13);
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { 
-            attribution: '© OpenStreetMap', maxZoom: 19 
-        }).addTo(map);
-        L.control.zoom({ position: 'bottomright' }).addTo(map);
-        
-        // Garante renderização correta
-        setTimeout(() => map.invalidateSize(), 100);
-    }
-
-    function initRegisterMap() {
-        if (registerMap) return;
-        const regEl = document.getElementById('registerMap');
-        if (!regEl) return;
-
-        registerMap = L.map('registerMap').setView([-23.5505, -46.6333], 13);
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OpenStreetMap' }).addTo(registerMap);
-        registerMarker = L.marker([-23.5505, -46.6333], { draggable: true }).addTo(registerMap);
-        registerMarker.on('dragend', e => {
-            const l = e.target.getLatLng();
-            document.getElementById('regLat').value = l.lat.toFixed(6);
-            document.getElementById('regLng').value = l.lng.toFixed(6);
-        });
-    }
-
-    function initProfileMap() {
-        if (profileMap) return;
-        const profEl = document.getElementById('profileMap');
-        if (!profEl) return;
-
-        profileMap = L.map('profileMap').setView([-23.5505, -46.6333], 13);
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OpenStreetMap' }).addTo(profileMap);
-        const marker = L.marker([-23.5505, -46.6333], { draggable: true }).addTo(profileMap);
-        marker.on('dragend', e => {
-            const l = e.target.getLatLng();
-            document.getElementById('profileLat').value = l.lat.toFixed(6);
-            document.getElementById('profileLng').value = l.lng.toFixed(6);
-        });
-    }
-
-    // ===== DADOS E LISTA =====
-    async function carregarEstabelecimentos() {
-        // Tenta buscar da API, se falhar, usa local
-        let lista = [];
-        try {
-            const res = await fetch(`${API_BASE}/establishments`);
-            if (!res.ok) throw new Error('API Offline');
-            const json = await res.json();
-            if (json.success && json.data.length) lista = json.data;
-        } catch (e) {
-            console.warn("Usando dados locais (API indisponível)");
-            const salvos = JSON.parse(localStorage.getItem('estabelecimentosZanza') || '[]');
-            lista = [...ESTABELECIMENTOS_MOCK, ...salvos];
+        function initRegisterMap() {
+            if (registerMap) registerMap.remove();
+            registerMap = L.map('registerMap').setView([-23.5505, -46.6333], 13);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OpenStreetMap', maxZoom: 19 }).addTo(registerMap);
+            registerMarker = L.marker([-23.5505, -46.6333], { draggable: true }).addTo(registerMap);
+            registerMarker.on('dragend', e => { const l = e.target.getLatLng(); document.getElementById('regLat').value = l.lat.toFixed(6); document.getElementById('regLng').value = l.lng.toFixed(6); });
+        }
+        function initProfileMap() {
+            if (profileMap) profileMap.remove();
+            profileMap = L.map('profileMap').setView([-23.5505, -46.6333], 13);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OpenStreetMap', maxZoom: 19 }).addTo(profileMap);
+            const marker = L.marker([-23.5505, -46.6333], { draggable: true }).addTo(profileMap);
+            marker.on('dragend', e => { const l = e.target.getLatLng(); document.getElementById('profileLat').value = l.lat.toFixed(6); document.getElementById('profileLng').value = l.lng.toFixed(6); });
         }
 
-        // Se tiver localização, calcula distância
-        if (userLocation) {
-            lista.forEach(e => {
-                e.distance = calcularDistancia(userLocation.lat, userLocation.lng, e.lat || e.latitude, e.lng || e.longitude);
+        // ===== CARREGAR ESTABELECIMENTOS =====
+        function carregarEstabelecimentos() { const salvos = JSON.parse(localStorage.getItem('estabelecimentosZanza') || '[]'); return [...estabelecimentosPadrao, ...salvos.map(e => ({ ...e, id: e.id || proximoId++ }))]; }
+
+        function renderizarLista(lista) {
+            const c = document.getElementById('list-panel'); c.innerHTML = '';
+            if (!lista.length) { c.innerHTML = '<div class="loading"><p>Nenhum estabelecimento encontrado.</p></div>'; return; }
+            lista.forEach((e, i) => {
+                const card = document.createElement('div'); card.className = 'est-card'; card.id = `card-${e.id}`;
+                card.innerHTML = `${i === 0 ? '<span style="position:absolute;top:-8px;right:10px;background:#FF6B6B;color:white;padding:2px 10px;border-radius:20px;font-size:0.75rem;font-weight:600">★ Mais próximo</span>' : ''}
+                    <div style="display:flex;justify-content:space-between;align-items:start"><h3>${e.nome}</h3><span class="distance-badge">${e.distancia} km</span></div>
+                    <p>📍 ${e.endereco}</p><p>📞 ${formatarTelefone(e.telefone)}</p>
+                    <div class="services-tags">${e.servicos.map(s => `<span class="service-tag">${s.nome}</span>`).join('')}</div>
+                    <div class="card-actions"><button class="btn btn-primary btn-sm" onclick="event.stopPropagation();abrirAgenda(${e.id})">📅 Agendar</button><button class="btn btn-outline btn-sm" onclick="event.stopPropagation();abrirWhatsApp(e)">💬 WhatsApp</button></div>`;
+                card.onclick = ev => { if (!ev.target.closest('button')) focarNoMapa(e); }; c.appendChild(card);
             });
-            lista.sort((a, b) => a.distance - b.distance);
         }
 
-        renderizarLista(lista);
-        if (userLocation) atualizarMapa(userLocation.lat, userLocation.lng, null, lista);
-    }
-
-    function renderizarLista(lista) {
-        const c = document.getElementById('list-panel');
-        if (!c) return;
-        c.innerHTML = '';
-        
-        if (!lista || lista.length === 0) {
-            c.innerHTML = '<div class="loading"><p>Nenhum estabelecimento encontrado.</p></div>';
-            return;
+        function atualizarMapa(lat, lng, filtroServico) {
+            markers.forEach(m => map.removeLayer(m)); markers = [];
+            const todos = carregarEstabelecimentos();
+            const comDist = todos.map(e => ({ ...e, distancia: +calcularDistancia(lat, lng, e.lat, e.lng) }));
+            let filtrados = filtroServico ? comDist.filter(e => e.servicos.some(s => s.nome.toLowerCase().includes(filtroServico))) : comDist;
+            filtrados.sort((a, b) => a.distancia - b.distancia);
+            map.setView([lat, lng], 13);
+            L.marker([lat, lng], { icon: L.divIcon({ className: 'user-marker', html: '<div style="background:#2C3630;width:14px;height:14px;border-radius:50%;border:3px solid #8BC3A7"></div>', iconSize: [14, 14], iconAnchor: [7, 7] }) }).addTo(map).bindPopup('<b>Você está aqui</b>').openPopup();
+            filtrados.forEach(e => {
+                const popup = `<div style="min-width:200px"><b>${e.nome}</b><br><span style="color:#666;font-size:0.9em">📍 ${e.endereco}</span><br><span style="color:#666;font-size:0.9em">📏 ${e.distancia} km</span><div style="margin-top:8px;display:grid;grid-template-columns:1fr 1fr;gap:5px"><button onclick="abrirAgenda(${e.id})">📅 Agendar</button><button onclick="abrirWhatsApp(estabelecimentosPadrao.find(x=>x.id===${e.id}) || JSON.parse(localStorage.getItem('estabelecimentosZanza')||'[]').find(x=>x.id===${e.id}))" style="background:#25D366;color:white">💬</button></div></div>`;
+                const m = L.marker([e.lat, e.lng]).addTo(map).bindPopup(popup);
+                m.on('click', () => destacarCard(e.id)); markers.push(m);
+            });
+            renderizarLista(filtrados);
         }
 
-        lista.forEach((e, i) => {
-            const card = document.createElement('div');
-            card.className = 'est-card';
-            card.id = `card-${e.id}`;
-            const nome = e.name || e.nome;
-            const dist = e.distance ? `${e.distance} km` : '';
-            
-            // Tratamento seguro de serviços
-            let servicosHtml = '';
+        function destacarCard(id) { document.querySelectorAll('.est-card').forEach(c => c.classList.remove('active')); const c = document.getElementById(`card-${id}`); if (c) { c.classList.add('active'); c.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); } }
+        function focarNoMapa(e) { map.setView([e.lat, e.lng], 16); markers.forEach(m => { if (m.getPopup()?.getContent().includes(e.nome)) m.openPopup(); }); destacarCard(e.id); }
+
+        // ===== BUSCA E GEOLOCALIZAÇÃO =====
+        function calcularDistancia(lat1, lon1, lat2, lon2) { const R = 6371, dLat = (lat2 - lat1) * Math.PI / 180, dLon = (lon2 - lon1) * Math.PI / 180; const a = Math.sin(dLat / 2) ** 2 + Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.sin(dLon / 2) ** 2; return (R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))).toFixed(1); }
+        function formatarTelefone(t) { const l = t.replace(/\D/g, ''); if (l.length === 11) return `(${l.slice(2, 4)}) ${l.slice(4, 9)}-${l.slice(9)}`; if (l.length === 10) return `(${l.slice(2, 4)}) ${l.slice(4, 8)}-${l.slice(8)}`; return t; }
+        function formatarData(s) { const [a, m, d] = s.split('-'); return `${d}/${m}/${a}`; }
+
+        async function buscarCEP(cep) {
             try {
-                const svcs = typeof e.services === 'string' ? JSON.parse(e.services) : (e.servicos || []);
-                servicosHtml = svcs.map(s => `<span class="service-tag">${s.nome}</span>`).join('');
-            } catch(err) {}
-
-            card.innerHTML = `
-                ${i===0 && dist ? '<span style="position:absolute;top:-8px;right:10px;background:#FF6B6B;color:white;padding:2px 8px;border-radius:10px;font-size:0.7rem">★ Perto</span>' : ''}
-                <h3>${nome}</h3>
-                <p>📍 ${e.address || e.endereco}</p>
-                <div class="services-tags">${servicosHtml}</div>
-                <div class="card-actions">
-                    <button class="btn btn-primary btn-sm" onclick="abrirAgenda('${e.id}')">Agendar</button>
-                    <button class="btn btn-outline btn-sm" onclick="abrirWhatsApp('${e.phone || e.telefone}')">WhatsApp</button>
-                </div>`;
-            
-            card.onclick = (ev) => {
-                if(!ev.target.closest('button')) focarNoMapa(e);
-            };
-            c.appendChild(card);
-        });
-    }
-
-    function atualizarMapa(lat, lng, filtro, listaPrevia) {
-        if (!map) return;
-        markers.forEach(m => map.removeLayer(m));
-        markers = [];
-        
-        map.setView([lat, lng], 13);
-        L.marker([lat, lng], {
-            icon: L.divIcon({ className: 'user-marker', html: '<div style="background:#2C3630;width:14px;height:14px;border-radius:50%;border:3px solid #8BC3A7"></div>', iconSize: [14, 14] })
-        }).addTo(map).bindPopup('Você').openPopup();
-
-        // Usa a lista passada ou recarrega
-        const dados = listaPrevia || carregarEstabelecimentosLocal(); 
-        
-        dados.forEach(e => {
-            const m = L.marker([e.lat || e.latitude, e.lng || e.longitude]).addTo(map);
-            m.bindPopup(`<b>${e.name || e.nome}</b><br><button onclick="abrirAgenda('${e.id}')">Ver</button>`);
-            m.on('click', () => destacarCard(e.id));
-            markers.push(m);
-        });
-    }
-
-    function carregarEstabelecimentosLocal() {
-        const salvos = JSON.parse(localStorage.getItem('estabelecimentosZanza') || '[]');
-        return [...ESTABELECIMENTOS_MOCK, ...salvos];
-    }
-
-    function destacarCard(id) {
-        document.querySelectorAll('.est-card').forEach(c => c.classList.remove('active'));
-        const el = document.getElementById(`card-${id}`);
-        if(el) { el.classList.add('active'); el.scrollIntoView({behavior:'smooth'}); }
-    }
-
-    function focarNoMapa(e) {
-        if(!map) return;
-        map.setView([e.lat || e.latitude, e.lng || e.longitude], 16);
-    }
-
-    // ===== UTILITÁRIOS =====
-    function calcularDistancia(lat1, lon1, lat2, lon2) {
-        if(!lat1 || !lat2) return 999;
-        const R = 6371; 
-        const dLat = (lat2 - lat1) * Math.PI / 180;
-        const dLon = (lon2 - lon1) * Math.PI / 180;
-        const a = Math.sin(dLat/2)**2 + Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dLon/2)**2;
-        return +(R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a))).toFixed(1);
-    }
-
-    function formatarTelefone(t) {
-        const l = (t||'').replace(/\D/g,'');
-        return l.length === 11 ? `(${l.slice(2,4)}) ${l.slice(4,9)}-${l.slice(9)}` : t;
-    }
-
-    // ===== BUSCA CEP =====
-    async function buscarCEP(cep) {
-        try {
-            const r = await fetch(`https://viacep.com.br/ws/${cep.replace(/\D/g,'')}/json/`);
-            const d = await r.json();
-            if(d.erro) throw new Error('CEP inválido');
-            // Simplificação: Retorna coords fixas de SP se falhar geo, para não travar
-            return { lat: -23.5505, lng: -46.6333, endereco: `${d.logradouro}, ${d.bairro}` };
-        } catch(e) { return null; }
-    }
-
-    async function buscarEstabelecimentos() {
-        const cep = document.getElementById('cepInput').value;
-        if(!cep) return alert('Digite um CEP');
-        
-        document.getElementById('loadingBusca').classList.remove('hidden');
-        const loc = await buscarCEP(cep);
-        document.getElementById('loadingBusca').classList.add('hidden');
-        
-        if(loc) {
-            userLocation = { lat: loc.lat, lng: loc.lng };
-            carregarEstabelecimentos(); // Recarrega com nova localização
+                const r = await fetch(`https://viacep.com.br/ws/${cep.replace(/\D/g, '')}/json/`), d = await r.json();
+                if (d.erro) throw new Error('CEP não encontrado');
+                const endereco = `${d.logradouro}, ${d.bairro}, ${d.localidade}, ${d.uf}`;
+                const geo = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(endereco)}&limit=1`), geoData = await geo.json();
+                if (geoData[0]) return { lat: +geoData[0].lat, lng: +geoData[0].lon, endereco };
+                throw new Error('Geocodificação falhou');
+            } catch (e) { console.error(e); alert('CEP não encontrado'); return null; }
         }
-    }
 
-    function usarLocalizacaoAtual() {
-        if(!navigator.geolocation) return alert('Geolocalização não suportada');
-        navigator.geolocation.getCurrentPosition(pos => {
-            userLocation = { lat: pos.coords.latitude, lng: pos.coords.longitude };
-            carregarEstabelecimentos();
-        }, () => alert('Permissão negada'));
-    }
-
-    // ===== AGENDAMENTO & CADASTRO (Simplificado para LocalStorage) =====
-    function abrirAgenda(id) {
-        const todos = carregarEstabelecimentosLocal();
-        estabSelecionado = todos.find(x => x.id == id || x.id == String(id));
-        if(!estabSelecionado) return;
-
-        document.getElementById('enderecoModal').textContent = estabSelecionado.address || estabSelecionado.endereco;
-        document.getElementById('modalAgenda').classList.add('open');
-    }
-    
-    function fecharAgenda() { document.getElementById('modalAgenda').classList.remove('open'); }
-    
-    function abrirWhatsApp(tel) {
-        if(!tel) return;
-        window.open(`https://wa.me/${tel.replace(/\D/g,'')}`, '_blank');
-    }
-
-    function cadastrarEstabelecimento(e) {
-        e.preventDefault();
-        const nome = document.getElementById('regNome').value;
-        const lat = document.getElementById('regLat').value;
-        
-        if(!lat) return alert('Selecione a localização no mapa');
-
-        const novo = {
-            id: Date.now(),
-            nome: nome,
-            name: nome, // compatibilidade
-            endereco: document.getElementById('regEndereco').value,
-            address: document.getElementById('regEndereco').value,
-            lat: parseFloat(lat),
-            latitude: parseFloat(lat),
-            lng: parseFloat(document.getElementById('regLng').value),
-            longitude: parseFloat(document.getElementById('regLng').value),
-            telefone: document.getElementById('regTelefone').value,
-            phone: document.getElementById('regTelefone').value,
-            servicos: [{nome: "Serviço Padrão", duracao: 60, preco: 100}]
-        };
-
-        const salvos = JSON.parse(localStorage.getItem('estabelecimentosZanza') || '[]');
-        salvos.push(novo);
-        localStorage.setItem('estabelecimentosZanza', JSON.stringify(salvos));
-
-        document.getElementById('registerForm').classList.add('hidden');
-        document.getElementById('registerSuccess').classList.remove('hidden');
-        carregarEstabelecimentos();
-    }
-
-    function limparRegistro() { location.reload(); }
-    function voltarParaLista() { 
-        document.getElementById('registerSuccess').classList.add('hidden'); 
-        document.getElementById('registerForm').classList.remove('hidden'); 
-    }
-    function scrollToAgendamento() { document.getElementById('map-section').scrollIntoView({behavior:'smooth'}); }
-
-    // ===== AUTH & UI =====
-    function initGoogleSignIn() {
-        // Mock p n quebra se Google não carrega
-        if(typeof google === 'undefined') return;
-        google.accounts.id.initialize({ client_id: 'SEU_ID', callback: () => {} });
-    }
-    
-    function abrirAuth() { document.getElementById('modalAuth').classList.add('open'); }
-    function fecharAuth() { document.getElementById('modalAuth').classList.remove('open'); }
-    
-    function mudarTabAuth(tab) {
-        const isLogin = tab === 'login';
-        document.getElementById('tabLogin').classList.toggle('active', isLogin);
-        document.getElementById('tabRegistro').classList.toggle('active', !isLogin);
-        document.getElementById('formLogin').classList.toggle('hidden', !isLogin);
-        document.getElementById('formRegistro').classList.toggle('hidden', isLogin);
-    }
-
-    function fazerLogin(e) {
-        e.preventDefault();
-        const email = document.getElementById('loginEmail').value;
-        usuarioAtual = { name: "Usuário", email: email };
-        localStorage.setItem('usuarioZanza', JSON.stringify(usuarioAtual));
-        fecharAuth();
-        atualizarHeaderUsuario();
-    }
-
-    function verificarUsuario() {
-        const u = JSON.parse(localStorage.getItem('usuarioZanza') || 'null');
-        if(u) usuarioAtual = u;
-        atualizarHeaderUsuario();
-    }
-
-    function atualizarHeaderUsuario() {
-        const nav = document.querySelector('.nav-actions');
-        if(usuarioAtual?.email) {
-            nav.innerHTML = `<button class="btn btn-avatar" onclick="abrirPerfil()">${usuarioAtual.name[0]}</button><button class="btn btn-outline btn-sm" onclick="logout()">Sair</button>`;
-        } else {
-            nav.innerHTML = `<button class="btn btn-outline btn-sm" onclick="abrirAuth()">Entrar</button><button class="btn btn-primary btn-sm" onclick="scrollToAgendamento()">Agendar</button>`;
+        async function geocodificarEndereco(endereco) {
+            const status = document.getElementById('geocodeStatus'); status.textContent = '🔍 Buscando...'; status.className = 'geocode-status loading';
+            try {
+                const response = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(endereco)}&limit=1`, { headers: { 'Accept-Language': 'pt-BR' } }), data = await response.json();
+                if (data[0]) {
+                    const { lat, lon, display_name } = data[0];
+                    document.getElementById('regLat').value = parseFloat(lat).toFixed(6); document.getElementById('regLng').value = parseFloat(lon).toFixed(6);
+                    if (registerMap) { registerMap.setView([lat, lon], 15); if (registerMarker) registerMarker.setLatLng([lat, lon]); }
+                    status.textContent = '✅ Localização encontrada!'; status.className = 'geocode-status success';
+                    return { lat: parseFloat(lat), lng: parseFloat(lon), endereco: display_name };
+                }
+                throw new Error('Endereço não encontrado');
+            } catch (e) { status.textContent = '❌ Endereço não encontrado'; status.className = 'geocode-status error'; return null; }
         }
-    }
 
-    function logout() {
-        localStorage.removeItem('usuarioZanza');
-        usuarioAtual = null;
-        atualizarHeaderUsuario();
-    }
+        async function sugerirEnderecos(query) {
+            const suggestionsEl = document.getElementById('addressSuggestions');
+            if (query.length < 5) { suggestionsEl.classList.add('hidden'); suggestionsEl.innerHTML = ''; return; }
+            try {
+                const response = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=5&countrycodes=br`, { headers: { 'Accept-Language': 'pt-BR' } }), data = await response.json();
+                if (data.length > 0) { suggestionsEl.innerHTML = data.map(item => `<div class="address-suggestion" onclick="selecionarSugestao('${item.display_name}', ${item.lat}, ${item.lon})">${item.display_name}</div>`).join(''); suggestionsEl.classList.remove('hidden'); }
+                else suggestionsEl.classList.add('hidden');
+            } catch (e) { suggestionsEl.classList.add('hidden'); }
+        }
 
-    function abrirPerfil() { 
-        if(!usuarioAtual) return abrirAuth();
-        initProfileMap();
-        document.getElementById('modalPerfil').classList.add('open'); 
-    }
-    function fecharPerfil() { document.getElementById('modalPerfil').classList.remove('open'); }
-    function salvarPerfil(e) { e.preventDefault(); alert('Salvo!'); fecharPerfil(); }
+        function selecionarSugestao(endereco, lat, lng) {
+            document.getElementById('regEndereco').value = endereco; document.getElementById('regLat').value = lat.toFixed(6); document.getElementById('regLng').value = lng.toFixed(6);
+            if (registerMap) { registerMap.setView([lat, lng], 15); if (registerMarker) registerMarker.setLatLng([lat, lng]); }
+            document.getElementById('addressSuggestions').classList.add('hidden');
+            const status = document.getElementById('geocodeStatus'); status.textContent = '✅ Endereço selecionado!'; status.className = 'geocode-status success';
+        }
 
-    function setupMascaras() {
-        document.getElementById('cepInput')?.addEventListener('input', e => {
-            e.target.value = e.target.value.replace(/\D/g,'').slice(0,8);
-        });
-    }
-    
-    function renderFeed() {
-        const g = document.getElementById('feedGrid');
-        if(g) g.innerHTML = '<div class="feed-card"><img src="https://images.unsplash.com/photo-1512290923902-8a9f81dc236c?w=400"><div class="feed-content"><p>Resultado Incrível</p></div></div>';
-    }
+        async function buscarEstabelecimentos() {
+            const cep = document.getElementById('cepInput').value, servico = document.getElementById('servicoSelect').value;
+            if (!cep) { alert('Digite um CEP ou use sua localização'); return; }
+            document.getElementById('loadingBusca').classList.remove('hidden');
+            const loc = await buscarCEP(cep); document.getElementById('loadingBusca').classList.add('hidden');
+            if (loc) { userLocation = { lat: loc.lat, lng: loc.lng }; atualizarMapa(loc.lat, loc.lng, servico); }
+        }
 
-    // Fechar modais ao clicar fora
-    window.onclick = e => {
-        if(e.target.classList.contains('modal')) e.target.classList.remove('open');
-    };
-</script>
+        function usarLocalizacaoAtual() {
+            if (!navigator.geolocation) { alert('Geolocalização não suportada'); return; }
+            document.getElementById('loadingBusca').classList.remove('hidden');
+            navigator.geolocation.getCurrentPosition(async pos => {
+                userLocation = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+                try { const r = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${userLocation.lat}&lon=${userLocation.lng}`), d = await r.json(); document.getElementById('cepInput').value = d.address?.postcode || 'Localização atual'; }
+                catch (e) { document.getElementById('cepInput').value = 'Localização atual'; }
+                atualizarMapa(userLocation.lat, userLocation.lng, document.getElementById('servicoSelect').value);
+                document.getElementById('loadingBusca').classList.add('hidden');
+            }, () => { alert('Não foi possível obter sua localização'); document.getElementById('loadingBusca').classList.add('hidden'); });
+        }
 
+        // ===== AGENDAMENTO =====
+        function abrirAgenda(id) {
+            const todos = carregarEstabelecimentos(); estabSelecionado = todos.find(e => e.id === id); if (!estabSelecionado) return;
+            document.getElementById('enderecoModal').textContent = estabSelecionado.endereco;
+            document.getElementById('listaServicos').innerHTML = estabSelecionado.servicos.map((s, i) => `<div class="service-option" onclick="selecionarServico(${i})" data-i="${i}"><div><strong>${s.nome}</strong><span>${s.duracao} min</span></div><div class="price">R$ ${s.preco}</div></div>`).join('');
+            renderizarDatas(); servicoSel = dataSel = horaSel = null; atualizarBtnConfirmar();
+            document.getElementById('modalAgenda').classList.add('open'); document.getElementById('conteudoAgenda').classList.remove('hidden'); document.getElementById('confirmacaoAgendamento').classList.add('hidden');
+        }
+        function fecharAgenda() { document.getElementById('modalAgenda').classList.remove('open'); }
+        function renderizarDatas() {
+            const c = document.getElementById('selecaoData'), dias = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'], hoje = new Date(); let h = '';
+            for (let i = 0; i < 7; i++) { const d = new Date(hoje); d.setDate(hoje.getDate() + i); h += `<div class="date-card" onclick="selecionarData('${d.toISOString().split('T')[0]}',this)" data-d="${d.toISOString().split('T')[0]}"><div class="weekday">${dias[d.getDay()]}</div><div class="day">${d.getDate()}</div><div class="month">${d.getMonth() + 1}</div></div>`; }
+            c.innerHTML = h;
+        }
+        function selecionarServico(i) { servicoSel = estabSelecionado.servicos[i]; document.querySelectorAll('.service-option').forEach((el, idx) => el.classList.toggle('selected', idx === i)); gerarHorarios(); atualizarBtnConfirmar(); }
+        function selecionarData(d, el) { dataSel = d; document.querySelectorAll('.date-card').forEach(e => e.classList.remove('active')); el.classList.add('active'); gerarHorarios(); atualizarBtnConfirmar(); }
+        function gerarHorarios() { const c = document.getElementById('horariosGrid'), indisponiveis = ['11:00', '15:00']; c.innerHTML = estabSelecionado.horarios.map(h => `<div class="time-slot ${indisponiveis.includes(h) ? 'unavailable' : ''} ${h === horaSel ? 'selected' : ''}" ${!indisponiveis.includes(h) ? `onclick="selecionarHorario('${h}')"` : ''}>${h}${indisponiveis.includes(h) ? '<div style="font-size:0.75rem;color:#999">Ocupado</div>' : ''}</div>`).join(''); }
+        function selecionarHorario(h) { horaSel = h; gerarHorarios(); atualizarBtnConfirmar(); }
+        function atualizarBtnConfirmar() { document.getElementById('btnConfirmar').disabled = !(servicoSel && dataSel && horaSel); }
+        function confirmarAgendamento() {
+            if (!(servicoSel && dataSel && horaSel)) return;
+            ['confEstabelecimento', 'confServico', 'confData', 'confHorario', 'confValor'].forEach((id, i) => { const v = [estabSelecionado.nome, `${servicoSel.nome} (${servicoSel.duracao} min)`, formatarData(dataSel), horaSel, `R$ ${servicoSel.preco}`][i]; document.getElementById(id).textContent = v; });
+            document.getElementById('conteudoAgenda').classList.add('hidden'); document.getElementById('confirmacaoAgendamento').classList.remove('hidden');
+        }
+        function novoAgendamento() { estabSelecionado = servicoSel = dataSel = horaSel = null; }
+
+        // ===== WHATSAPP & ROTA =====
+        function abrirWhatsApp(e) { if (!e?.telefone) { alert('Telefone não disponível'); return; } const msg = encodeURIComponent(`Olá! Vim pelo Zanza e gostaria de saber sobre os serviços da ${e.nome}.`); const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent); window.open(isMobile ? `https://wa.me/${e.telefone}?text=${msg}` : `https://web.whatsapp.com/send?phone=${e.telefone}&text=${msg}`, '_blank'); }
+        function abrirRota(e) { if (!userLocation) { alert('Busque sua localização primeiro'); return; } window.open(`https://www.google.com/maps/dir/?api=1&origin=${userLocation.lat},${userLocation.lng}&destination=${e.lat},${e.lng}&travelmode=driving`, '_blank'); }
+
+        // ===== CADASTRO DE ESTABELECIMENTO =====
+        function previewFotosRegistro(e) { const files = Array.from(e.target.files); files.forEach(file => { if (!file.type.startsWith('image/') || file.size > 5 * 1024 * 1024) return; const reader = new FileReader(); reader.onload = ev => { fotosRegistro.push(ev.target.result); renderizarFotosRegistro(); }; reader.readAsDataURL(file); }); }
+        function renderizarFotosRegistro() { const c = document.getElementById('regPhotosPreview'); c.innerHTML = ''; fotosRegistro.forEach((src, i) => { const div = document.createElement('div'); div.className = 'photo-preview'; div.innerHTML = `<img src="${src}" alt="Foto ${i + 1}"><button class="photo-remove" onclick="removerFotoRegistro(${i})">&times;</button>`; c.appendChild(div); }); }
+        function removerFotoRegistro(i) { fotosRegistro.splice(i, 1); renderizarFotosRegistro(); }
+        function adicionarServico() { const builder = document.getElementById('servicesBuilder'); const row = document.createElement('div'); row.className = 'service-row'; row.innerHTML = `<input type="text" placeholder="Nome do serviço" class="svc-nome" required><input type="number" placeholder="Min" class="svc-duracao" min="15" max="480" required><input type="number" placeholder="R$" class="svc-preco" min="1" step="0.01" required><button type="button" class="btn-remove-service" onclick="removerServico(this)" title="Remover">×</button>`; builder.appendChild(row); row.querySelector('.svc-nome').focus(); }
+        function removerServico(btn) { const row = btn.closest('.service-row'); if (document.querySelectorAll('.service-row').length > 1) { row.style.opacity = '0'; row.style.transform = 'translateX(-20px)'; setTimeout(() => row.remove(), 150); } }
+        function toggleHorario(el) { if (el.classList.contains('removed')) return; el.classList.toggle('selected'); const horario = el.textContent.trim(); if (el.classList.contains('selected')) { if (!horariosSelecionados.includes(horario)) horariosSelecionados.push(horario); } else { horariosSelecionados = horariosSelecionados.filter(h => h !== horario); } }
+        function usarLocalizacaoRegistro() { if (!navigator.geolocation) { alert('Geolocalização não suportada'); return; } navigator.geolocation.getCurrentPosition(async pos => { const { latitude, longitude } = pos.coords; document.getElementById('regLat').value = latitude.toFixed(6); document.getElementById('regLng').value = longitude.toFixed(6); if (registerMap) { registerMap.setView([latitude, longitude], 15); if (registerMarker) registerMarker.setLatLng([latitude, longitude]); } try { const r = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`), d = await r.json(); if (d.display_name) { document.getElementById('regEndereco').value = d.display_name; const status = document.getElementById('geocodeStatus'); status.textContent = '✅ Localização obtida!'; status.className = 'geocode-status success'; } } catch (e) { } }, () => alert('Não foi possível obter sua localização')); }
+        async function cadastrarEstabelecimento(e) {
+            e.preventDefault(); const btn = document.getElementById('btnRegistrar');
+            if (!document.getElementById('regLat').value || !document.getElementById('regLng').value) { mostrarAlerta('alertRegister', 'Por favor, selecione a localização no mapa.', 'error'); return; }
+            btn.classList.add('btn-loading'); btn.disabled = true;
+            const servicos = []; document.querySelectorAll('.service-row').forEach(row => { const nome = row.querySelector('.svc-nome')?.value.trim(), duracao = parseInt(row.querySelector('.svc-duracao')?.value), preco = parseFloat(row.querySelector('.svc-preco')?.value); if (nome && duracao && preco) servicos.push({ nome, duracao, preco }); });
+            if (servicos.length === 0 || horariosSelecionados.length === 0) { btn.classList.remove('btn-loading'); btn.disabled = false; mostrarAlerta('alertRegister', 'Adicione pelo menos um serviço e horário.', 'error'); return; }
+            const novoEstabelecimento = { id: proximoId++, nome: document.getElementById('regNome').value.trim(), endereco: document.getElementById('regEndereco').value.trim(), lat: parseFloat(document.getElementById('regLat').value), lng: parseFloat(document.getElementById('regLng').value), telefone: document.getElementById('regTelefone').value.replace(/\D/g, ''), email: document.getElementById('regEmail').value.trim(), descricao: document.getElementById('regDescricao').value.trim(), servicos, horarios: horariosSelecionados.sort(), fotos: fotosRegistro, dataCadastro: new Date().toISOString() };
+            setTimeout(() => { const salvos = JSON.parse(localStorage.getItem('estabelecimentosZanza') || '[]'); salvos.push(novoEstabelecimento); localStorage.setItem('estabelecimentosZanza', JSON.stringify(salvos)); btn.classList.remove('btn-loading'); document.getElementById('registerForm').classList.add('hidden'); document.getElementById('registerSuccess').classList.remove('hidden'); setTimeout(() => { atualizarMapa(novoEstabelecimento.lat, novoEstabelecimento.lng, ''); }, 500); }, 1000);
+        }
+        function limparRegistro() { fotosRegistro = []; horariosSelecionados = []; renderizarFotosRegistro(); document.querySelectorAll('.time-chip').forEach(el => el.classList.remove('selected')); document.getElementById('servicesBuilder').innerHTML = `<div class="service-row"><input type="text" placeholder="Nome do serviço" class="svc-nome" required><input type="number" placeholder="Min" class="svc-duracao" min="15" max="480" required><input type="number" placeholder="R$" class="svc-preco" min="1" step="0.01" required><button type="button" class="btn-remove-service" onclick="removerServico(this)" title="Remover">×</button></div>`; document.getElementById('geocodeStatus').textContent = ''; document.getElementById('geocodeStatus').className = 'geocode-status'; if (registerMap) { registerMap.setView([-23.5505, -46.6333], 13); if (registerMarker) registerMarker.setLatLng([-23.5505, -46.6333]); } }
+        function novoRegistro() { limparRegistro(); document.getElementById('registerSuccess').classList.add('hidden'); document.getElementById('registerForm').classList.remove('hidden'); }
+        function voltarParaLista() { document.getElementById('registerSuccess').classList.add('hidden'); document.getElementById('registerForm').classList.remove('hidden'); scrollToAgendamento(); }
+        function scrollToAgendamento() { document.getElementById('map-section').scrollIntoView({ behavior: 'smooth' }); }
+
+        // ===== AUTENTICAÇÃO =====
+        function abrirAuth(tipo) { document.getElementById('modalAuth').classList.add('open'); document.getElementById('alertAuth').classList.remove('show'); mudarTabAuth(tipo === 'profissional' ? 'registro' : 'login'); }
+        function fecharAuth() { document.getElementById('modalAuth').classList.remove('open'); }
+        function mudarTabAuth(tab) { const tabLogin = document.getElementById('tabLogin'), tabRegistro = document.getElementById('tabRegistro'), formLogin = document.getElementById('formLogin'), formRegistro = document.getElementById('formRegistro'); if (tab === 'login') { tabLogin.classList.add('active'); tabRegistro.classList.remove('active'); formLogin.classList.remove('hidden'); formRegistro.classList.add('hidden'); } else { tabRegistro.classList.add('active'); tabLogin.classList.remove('active'); formRegistro.classList.remove('hidden'); formLogin.classList.add('hidden'); } document.getElementById('alertAuth').classList.remove('show'); }
+        async function fazerLogin(e) { e.preventDefault(); const email = document.getElementById('loginEmail').value, senha = document.getElementById('loginSenha').value, btn = e.target.querySelector('button[type="submit"]'); btn.disabled = true; btn.textContent = 'Entrando...'; setTimeout(() => { const usuarios = JSON.parse(localStorage.getItem('usuariosZanza') || '[]'), usuario = usuarios.find(u => u.email === email && u.senha === senha); if (usuario || (email === 'admin@zanza.com' && senha === '123456')) { const userLogado = usuario || { email, nome: 'Admin' }; localStorage.setItem('usuarioZanza', JSON.stringify(userLogado)); usuarioAtual = userLogado; fecharAuth(); atualizarHeaderUsuario(); mostrarAlerta('alertAuth', 'Login realizado com sucesso! Bem-vindo(a)! ✨', 'success'); if (usuario?.tipo === 'profissional') setTimeout(() => abrirPerfil(), 500); } else { mostrarAlerta('alertAuth', 'Email ou senha incorretos.', 'error'); } btn.disabled = false; btn.textContent = 'Entrar'; }, 800); }
+        async function fazerRegistro(e) { e.preventDefault(); const dados = { nome: document.getElementById('registroNome').value, email: document.getElementById('registroEmail').value, telefone: document.getElementById('registroTelefone').value, senha: document.getElementById('registroSenha').value, tipo: 'cliente', dataCadastro: new Date().toISOString() }, btn = e.target.querySelector('button[type="submit"]'); btn.disabled = true; btn.textContent = 'Criando conta...'; setTimeout(() => { const usuarios = JSON.parse(localStorage.getItem('usuariosZanza') || '[]'); if (usuarios.find(u => u.email === dados.email)) { mostrarAlerta('alertAuth', 'Este email já está cadastrado.', 'error'); btn.disabled = false; btn.textContent = 'Criar conta'; return; } usuarios.push(dados); localStorage.setItem('usuariosZanza', JSON.stringify(usuarios)); localStorage.setItem('usuarioZanza', JSON.stringify(dados)); usuarioAtual = dados; fecharAuth(); atualizarHeaderUsuario(); mostrarAlerta('alertAuth', 'Conta criada com sucesso! Bem-vindo(a)! 🎉', 'success'); btn.disabled = false; btn.textContent = 'Criar conta'; }, 1000); }
+        function loginGoogle() { socialLogin('google', 'Usuário Google', 'usuario@gmail.com'); }
+        function loginApple() { socialLogin('apple', 'Usuário Apple', 'usuario@icloud.com'); }
+        function socialLogin(provider, nome, email) {
+            const btn = event.currentTarget; btn.disabled = true; btn.innerHTML = '<div class="spinner" style="width:20px;height:20px;border-width:2px;"></div>';
+            setTimeout(() => { const usuario = { nome, email, telefone: '', tipo: 'cliente', provider }; localStorage.setItem('usuarioZanza', JSON.stringify(usuario)); usuarioAtual = usuario; fecharAuth(); atualizarHeaderUsuario(); mostrarAlerta('alertAuth', `Login com ${provider === 'google' ? 'Google' : 'Apple'} realizado! ✨`, 'success'); btn.disabled = false; btn.innerHTML = provider === 'google' ? `<svg width="20" height="20" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg> Continuar com Google` : `<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg> Continuar com Apple`; }, 1200);
+        }
+        function recuperarSenha() { fecharAuth(); document.getElementById('modalRecuperacao').classList.add('open'); }
+        function fecharRecuperacao() { document.getElementById('modalRecuperacao').classList.remove('open'); }
+        async function enviarRecuperacao(e) { e.preventDefault(); const email = document.getElementById('recuperacaoEmail').value, btn = e.target.querySelector('button[type="submit"]'); btn.disabled = true; btn.textContent = 'Enviando...'; setTimeout(() => { mostrarAlerta('alertRecuperacao', `Email de recuperação enviado para ${email}! 📧`, 'success'); btn.disabled = false; btn.textContent = 'Enviar instruções'; setTimeout(() => { fecharRecuperacao(); abrirAuth(); }, 2500); }, 1000); }
+        function mostrarAlerta(id, msg, tipo = 'info') { const el = document.getElementById(id); if (!el) return; el.textContent = msg; el.className = `alert alert-${tipo} show`; if (tipo !== 'error') setTimeout(() => el.classList.remove('show'), 4000); }
+        function atualizarHeaderUsuario() { const usuario = JSON.parse(localStorage.getItem('usuarioZanza') || 'null'), navActions = document.querySelector('.nav-actions'); if (usuario) { const inicial = usuario.nome?.charAt(0).toUpperCase() || 'U'; navActions.innerHTML = `<button class="btn btn-avatar" onclick="abrirPerfil()" title="${usuario.nome || 'Perfil'}">${inicial}</button><button class="btn btn-outline btn-sm" onclick="logout()">Sair</button>`; } else { navActions.innerHTML = `<button class="btn btn-outline btn-sm" onclick="abrirAuth()">Entrar</button><button class="btn btn-primary btn-sm" onclick="scrollToAgendamento()">Agendar</button>`; } }
+        function logout() { if (confirm('Deseja realmente sair da conta?')) { localStorage.removeItem('usuarioZanza'); usuarioAtual = null; atualizarHeaderUsuario(); mostrarAlerta('alertAuth', 'Você saiu da conta.', 'info'); } }
+        function verificarUsuario() { const usuario = JSON.parse(localStorage.getItem('usuarioZanza') || 'null'); if (usuario) usuarioAtual = usuario; atualizarHeaderUsuario(); }
+
+        // ===== PERFIL =====
+        function abrirPerfil() { const usuario = JSON.parse(localStorage.getItem('usuarioZanza') || 'null'); if (!usuario) { abrirAuth(); return; } initProfileMap(); document.getElementById('modalPerfil').classList.add('open'); }
+        function fecharPerfil() { document.getElementById('modalPerfil').classList.remove('open'); }
+        function carregarPerfilMock() { const mock = { nome: "Maria Silva", email: "maria@exemplo.com", telefone: "5511999999999", nomeLoja: "Studio Maria", descricao: "Especialista em cuidados faciais e bem-estar.", latitude: -23.5615, longitude: -46.6720 }; document.getElementById('profileNameDisplay').textContent = mock.nome; document.getElementById('profileEmailDisplay').textContent = mock.email;['profileNome', 'profileEmail', 'profileTelefone', 'profileNomeLoja', 'profileDescricao'].forEach(id => { const el = document.getElementById(id); if (el && mock[id.replace('profile', '').toLowerCase()]) el.value = mock[id.replace('profile', '').toLowerCase()]; }); if (mock.latitude && mock.longitude) { document.getElementById('profileLat').value = mock.latitude; document.getElementById('profileLng').value = mock.longitude; if (profileMap) profileMap.setView([mock.latitude, mock.longitude], 15); } }
+        function previewFotoPerfil(e) { const file = e.target.files[0]; if (!file) return; if (!file.type.startsWith('image/') || file.size > 5 * 1024 * 1024) { mostrarAlerta('alertPerfil', 'Selecione uma imagem válida (máx. 5MB)', 'error'); return; } const reader = new FileReader(); reader.onload = ev => { document.getElementById('profileAvatar').src = ev.target.result; }; reader.readAsDataURL(file); }
+        function previewFotosServicos(e) { const files = Array.from(e.target.files); files.forEach(file => { if (!file.type.startsWith('image/') || file.size > 5 * 1024 * 1024) return; const reader = new FileReader(); reader.onload = ev => { fotosServicos.push(ev.target.result); renderizarFotosPreview(); }; reader.readAsDataURL(file); }); }
+        function renderizarFotosPreview() { const c = document.getElementById('photosPreview'); c.innerHTML = ''; fotosServicos.forEach((src, i) => { const div = document.createElement('div'); div.className = 'photo-preview'; div.innerHTML = `<img src="${src}" alt="Foto ${i + 1}"><button class="photo-remove" onclick="removerFoto(${i})">&times;</button>`; c.appendChild(div); }); }
+        function removerFoto(i) { fotosServicos.splice(i, 1); renderizarFotosPreview(); }
+        function definirLocalizacaoAtual() { if (!navigator.geolocation) { alert('Geolocalização não suportada'); return; } navigator.geolocation.getCurrentPosition(pos => { const { latitude, longitude } = pos.coords; document.getElementById('profileLat').value = latitude.toFixed(6); document.getElementById('profileLng').value = longitude.toFixed(6); if (profileMap) { profileMap.setView([latitude, longitude], 15); profileMap.eachLayer(l => { if (l instanceof L.Marker) l.setLatLng([latitude, longitude]); }); } }, () => alert('Não foi possível obter sua localização')); }
+        async function salvarPerfil(e) { e.preventDefault(); const btn = document.getElementById('btnSalvarPerfil'); btn.disabled = true; btn.textContent = 'Salvando...'; const dados = { nome: document.getElementById('profileNome').value, email: document.getElementById('profileEmail').value, telefone: document.getElementById('profileTelefone').value, nomeLoja: document.getElementById('profileNomeLoja').value, descricao: document.getElementById('profileDescricao').value, fotos: fotosServicos, latitude: document.getElementById('profileLat').value, longitude: document.getElementById('profileLng').value, termos: document.getElementById('profileTermos').checked }; setTimeout(() => { localStorage.setItem('perfilZanza', JSON.stringify(dados)); mostrarAlerta('alertPerfil', 'Perfil atualizado com sucesso! ✨', 'success'); btn.disabled = false; btn.textContent = '💾 Salvar'; }, 800); }
+
+        // ===== UTILITÁRIOS =====
+        function setupMascaras() {
+            const cep = document.getElementById('cepInput'); cep?.addEventListener('input', e => { let v = e.target.value.replace(/\D/g, '').slice(0, 8); if (v.length > 5) v = v.replace(/^(\d{5})(\d)/, '$1-$2'); e.target.value = v; });
+            const telInputs = [document.getElementById('registroTelefone'), document.getElementById('regTelefone'), document.getElementById('profileTelefone')];
+            telInputs.forEach(input => { input?.addEventListener('input', e => { let v = e.target.value.replace(/\D/g, '').slice(0, 11); if (v.length > 10) v = v.replace(/^(\d{2})(\d{5})(\d{4})/, '($1) $2-$3'); else if (v.length > 5) v = v.replace(/^(\d{2})(\d{4})(\d{0,4})/, '($1) $2-$3'); else if (v.length > 2) v = v.replace(/^(\d{2})(\d{0,5})/, '($1) $2'); e.target.value = v; }); });
+            const cnpj = document.getElementById('profileCNPJ'); cnpj?.addEventListener('input', e => { let v = e.target.value.replace(/\D/g, '').slice(0, 14); if (v.length > 2) v = v.replace(/^(\d{2})/, '$1.'); if (v.length > 5) v = v.replace(/^(\d{2})\.(\d{3})/, '$1.$2'); if (v.length > 8) v = v.replace(/^(\d{2})\.(\d{3})\.(\d{3})/, '$1.$2.$3'); if (v.length > 12) v = v.replace(/^(\d{2})\.(\d{3})\.(\d{3})\/(\d{4})/, '$1.$2.$3/$4'); e.target.value = v; });
+        }
+        function renderFeed() { const imagens = ['https://images.unsplash.com/photo-1512290923902-8a9f81dc236c?w=400&q=80', 'https://images.unsplash.com/photo-1560750588-73207b1ef5b8?w=400&q=80', 'https://images.unsplash.com/photo-1616394584738-fc6e612e71b9?w=400&q=80'], nomes = ['Clínica Bella', 'Dra. Ana', 'Studio Glow'], servicos = ['Limpeza de pele profunda ✨', 'Design de sobrancelhas fio a fio', 'Manicure completa e spa dos pés'], g = document.getElementById('feedGrid'); imagens.forEach((src, i) => { g.innerHTML += `<div class="feed-card"><img src="${src}" alt="${servicos[i]}" loading="lazy"><div class="feed-content"><div class="feed-user"><span>${nomes[i]}</span> <span class="verified">✓</span></div><p>${servicos[i]}</p></div></div>`; }); }
+        function assinarNewsletter(e) { e.preventDefault(); mostrarAlerta('alertAuth', 'Obrigado por assinar nossa newsletter! ✨', 'success'); e.target.reset(); }
+
+        // ===== EVENTOS GLOBAIS =====
+        window.onclick = e => { if (e.target.classList.contains('modal')) e.target.classList.remove('open'); };
+        document.addEventListener('keydown', e => { if (e.key === 'Escape') document.querySelectorAll('.modal.open').forEach(m => m.classList.remove('open')); });
+    </script>
 </body>
 
 </html>
